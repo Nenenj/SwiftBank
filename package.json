@@ -1,0 +1,26 @@
+{
+  "name": "SwiftBank",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nenenj/SwiftBank.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nenenj/SwiftBank/issues"
+  },
+  "homepage": "https://github.com/Nenenj/SwiftBank#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.20.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.6.1"
+  }
+}
