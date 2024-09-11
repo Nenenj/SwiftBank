@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const userRoutes = require('./routes/user');
 
 // Import Sequelize and Models
 const sequelize = require('./config/database');  // Adjust this path based on where your config file is
@@ -9,6 +10,9 @@ const Transaction = require('./models/Transaction');
 
 // Middleware
 app.use(express.json());
+
+// Use the user routes
+app.use('/', userRoutes);
 
 // Route - Test the API
 app.get('/', (req, res) => {
