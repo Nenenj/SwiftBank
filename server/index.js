@@ -4,7 +4,7 @@ const port = 3000;
 const userRoutes = require('./routes/user');
 
 // Import Sequelize and Models
-const sequelize = require('./config/database');  // Adjust this path based on where your config file is
+const sequelize = require('./config/database');  
 const User = require('./models/User');
 const Transaction = require('./models/Transaction');
 
@@ -20,9 +20,9 @@ app.get('/', (req, res) => {
 });
 
 // Sync all models and start the server
-sequelize.sync({ force: true })  // Set force to true only in development, it drops tables if they exist
+sequelize.sync()
   .then(() => {
-    console.log('Database & tables created!');
+    console.log('Database & tables synchronized!');
 
     // Start the server after DB sync
     app.listen(port, () => {
@@ -30,5 +30,5 @@ sequelize.sync({ force: true })  // Set force to true only in development, it dr
     });
   })
   .catch((err) => {
-    console.error('Error creating database tables:', err);
+    console.error('Error synchronizing database tables:', err);
   });
