@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftBank - Login</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<!-- Navbar -->
+	<nav class="navbar">
+		<div class="logo">SWIFTBANK</div>
+		<div class="nav-links">
+			<a href="/register">Register</a>
+			<a href="/account-opening">Account Opening</a>
+			<a href="/transactions">Transactions</a>
+			<a href="/">Dashboard</a>
+		</div>
+	</nav>
+  <div class="login-container">
+    <div class="swiftbank-vertical">SwiftBank</div>
+    <div class="login-box">
+      <h2>Login</h2>
+      <form action="/api/login" method="POST">
+        <div class="input-group">
+          <img src="images/username-icon.png" alt="User" class="icon"> <!-- User icon -->
+          <input type="text" placeholder="Username" required>
+        </div>
+        <div class="input-group">
+          <img src="images/password-icon.png" alt="Password" class="icon"> <!-- Password icon -->
+          <input type="password" placeholder="Password" required>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

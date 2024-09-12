@@ -1,0 +1,187 @@
+/* General body styling */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #ADD8E6; /* Light blue background */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Navbar styling */
+.navbar {
+    background-color: #FFB6C1; /* Light pink color */
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Navbar title */
+.navbar .logo {
+    font-size: 30px;
+    color: white;
+    font-weight: bold;
+}
+
+/* Navbar links container */
+.navbar .nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+/* Styling for each link */
+.navbar .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 8px 16px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover effect for links */
+.navbar .nav-links a:hover {
+    background-color: #FF69B4; /* Darker pink on hover */
+    border-radius: 4px;
+}
+
+/* Button styling */
+button {
+    background-color: #007bff; /* Blue color */
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker blue */
+}
+
+/* Login container styling */
+.login-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 400px; /* Increased width */
+    max-width: 90%; /* Responsive width */
+    text-align: center;
+    position: relative;
+    margin: 20px auto; /* Center the container */
+}
+
+/* Input group styling */
+.input-group {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+.input-group .icon {
+    width: 24px; /* Adjusted icon size */
+    height: 24px; /* Adjusted icon size */
+    margin: 5px;
+}
+
+/* Ensure forms are styled appropriately */
+form input {
+    border: none;
+    outline: none;
+    padding: 10px;
+    flex: 1;
+    border-radius: 4px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    /* Navbar responsiveness */
+    .navbar .logo {
+        font-size: 24px;
+    }
+
+    .navbar .nav-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .navbar .nav-links a {
+        font-size: 16px;
+    }
+
+    /* Adjust body padding for smaller screens */
+    body {
+        padding: 15px;
+    }
+
+    /* Adjust login container for smaller screens */
+    .login-container {
+        width: 90%; /* Adjusted width */
+        padding: 15px;
+    }
+
+    .input-group .icon {
+        width: 20px; /* Smaller icon size for medium screens */
+        height: 20px;
+    }
+
+    /* Ensure forms and buttons adapt well */
+    form input {
+        padding: 8px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Navbar title smaller for very small screens */
+    .navbar .logo {
+        font-size: 20px;
+    }
+
+    /* Navbar links stacked vertically */
+    .navbar .nav-links {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /* Smaller font size for links */
+    .navbar .nav-links a {
+        font-size: 14px;
+    }
+
+    /* Adjust button size for mobile */
+    button {
+        font-size: 12px;
+        padding: 6px;
+    }
+
+    /* General body adjustments for mobile */
+    body {
+        padding: 10px;
+    }
+
+    /* Adjust login container for very small screens */
+    .login-container {
+        width: 100%; /* Full width */
+        padding: 10px;
+    }
+
+    .input-group .icon {
+        width: 18px; /* Even smaller icon size */
+        height: 18px;
+    }
+}
