@@ -7,32 +7,57 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-	<!-- Navbar -->
-	<nav class="navbar">
-		<div class="logo">SWIFTBANK</div>
-    
-    <div class="nav-links">
-                <a href="/register">Register</a>
-                <a href="/login">Login</a>
-                <a href="/transactions">Transactions</a>
-                <a href="/">Dashboard</a>
-    </div>
-        </nav>
-        <main class="content page">
-            <h2>Account Opening</h2>
-            <form action="/api/account-opening" method="POST">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">SWIFTBANK</div>
+        <div class="nav-links">
+            <a href="/register">Register</a>
+            <a href="/login">Login</a>
+            <a href="/transactions">Transactions</a>
+            <a href="/">Dashboard</a>
+        </div>
+    </nav>
 
-                <label for="email">Email</label>
-                <input type="text" id="email" name="email" required>
+    <main class="content page">
+        <h2>Account Opening</h2>
+        <form id="accountOpeningForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
 
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email" required>
 
-                <button type="submit">Open Account</button>
-            </form>
-        </main>
-    </div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="button" onclick="openAccount()">Open Account</button>
+        </form>
+        <p id="responseMessage"></p>
+    </main>
+
+    <script>
+        async function openAccount() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/api/account-opening', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, email, password }),
+            });
+
+            const data = await response.json();
+            const responseMessage = document.getElementById('responseMessage');
+
+            if (response.ok) {
+                responseMessage.textContent = `Account opened successfully! Your account number: ${data.accountNumber}. Token: ${data.token}`;
+            } else {
+                responseMessage.textContent = `Error: ${data.error || 'Account opening failed'}`;
+            }
+        }
+    </script>
 </body>
 </html>

@@ -15,6 +15,7 @@
       <a href="/login">Login</a>
       <a href="/account-opening">Account Opening</a>
       <a href="/">Dashboard</a>
+      <a href="#" id="logoutBtn">Logout</a>
     </div>
   </nav>
 
@@ -39,7 +40,7 @@
     <p id="transactionResult"></p>
   </main>
 
-  <!-- JavaScript to handle transactions -->
+  <!-- JavaScript to handle transactions and logout -->
   <script>
     const accountNumber = document.getElementById('account-number');
     const amount = document.getElementById('amount');
@@ -61,7 +62,7 @@
         const data = await response.json();
 
         if (response.ok) {
-          result.textContent = `${type} successful! New Balance: ${data.newBalance}`;
+          result.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} successful! New Balance: ₦${parseFloat(data.newBalance).toFixed(2)}`;
         } else {
           result.textContent = `Error: ${data.error || 'Transaction failed'}`;
         }
@@ -75,6 +76,11 @@
     document.getElementById('withdrawBtn').addEventListener('click', () => handleTransaction('withdraw'));
     document.getElementById('sendMoneyBtn').addEventListener('click', () => handleTransaction('send-money'));
     document.getElementById('payBillsBtn').addEventListener('click', () => handleTransaction('pay-bills'));
+
+    // Logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      window.location.href = '/login';
+    });
   </script>
 </body>
 </html>

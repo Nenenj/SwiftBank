@@ -5,25 +5,19 @@ const User = require('../models/User');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 
-/* 
+/*
  * Register route
  */
 router.post('/register', async (req, res) => {
-  console.log('Register request body:', req.body);
   const { username, email, password } = req.body;
 
   try {
-    /* Check if user exists */
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) return res.status(400).json({ error: 'User already exists' });
 
-    /* Hash the password */
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    /* Generate unique account number for the user */
     const accountNumber = uuidv4().split('-')[0];
 
-    /* Create the user in the database */
     const newUser = await User.create({
       username,
       email,
@@ -32,127 +26,126 @@ router.post('/register', async (req, res) => {
       balance: 0.00
     });
 
-    /* Send a success response */
     res.status(201).json({ message: 'User registered successfully', user: newUser });
   } catch (error) {
-    /* Log the error to the terminal for debugging */
     console.error('Error registering user:', error);
     res.status(500).json({ error: 'Error registering user' });
   }
 });
 
-/* 
+/*
  * Login route
  */
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log('Login request:', { email, password});
+
   try {
-    /* Find the user by email */
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(400).json({ error: 'User not found' });
 
-    /* Compare the provided password with the hashed password */
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid password' });
 
-    /* Create a JWT token */
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-
-    /* Send a success response with the token */
-    res.status(200).json({ 
-	message: 'Login successful', 
-	token,
-        username: user.username,
-        balance: user.balance.toFixed(2)
+    res.status(200).json({
+      message: 'Login successful',
+      username: user.username,
+      balance: user.balance
     });
   } catch (error) {
-    /* Log the error to the terminal for debugging */
     console.error('Error logging in:', error);
     res.status(500).json({ error: 'Error logging in' });
   }
 });
 
-/* 
+/*
  * Deposit route
  */
 router.post('/deposit', async (req, res) => {
   try {
     const { accountNumber, amount } = req.body;
-    console.log("Deposit Request - Account Number:", accountNumber, "Amount:", amount);  /* Log incoming data */
 
-    /* Find the user by account number */
     const user = await User.findOne({ where: { accountNumber } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    /* Update the user's balance */
     user.balance = parseFloat(user.balance) + parseFloat(amount);
-    
-    /* Save the updated balance */
     await user.save();
 
-    /* Format balance for the response */
-    const formattedBalance = user.balance.toFixed(2);
-
-    res.status(200).json({ message: 'Deposit successful', newBalance: user.balance });
+    res.status(200).json({ message: 'Deposit successful', newBalance: user.balance.toFixed(2) });
   } catch (error) {
     console.error('Error making deposit:', error);
     res.status(500).json({ error: 'Error making deposit', details: error.message });
   }
 });
 
-/* 
+/*
  * Withdrawal route
  */
 router.post('/withdraw', async (req, res) => {
   try {
     const { accountNumber, amount } = req.body;
-    console.log("Withdrawal Request - Account Number:", accountNumber, "Amount:", amount);  /* Log incoming data */
 
-    /* Find the user by account number */
     const user = await User.findOne({ where: { accountNumber } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    if (user.balance < amount) return res.status(400).json({ error: 'Insufficient funds' });
 
-    /* Check if the user has sufficient balance */
-    if (user.balance < amount) {
-      return res.status(400).json({ error: 'Insufficient funds' });
-    }
-
-    /* Update the user's balance */
     user.balance = parseFloat(user.balance) - parseFloat(amount);
-    
-    /* Save the updated balance */
     await user.save();
 
-    /* Format balance for the response */
-    const formattedBalance = user.balance.toFixed(2);
-
-    res.status(200).json({ message: 'Withdrawal successful', newBalance: user.balance });
+    res.status(200).json({ message: 'Withdrawal successful', newBalance: user.balance.toFixed(2) });
   } catch (error) {
     console.error('Error making withdrawal:', error);
     res.status(500).json({ error: 'Error making withdrawal', details: error.message });
   }
 });
 
-/* 
- * Temporary route to list all users
+/*
+ * Send Money route
  */
-router.get('/users', async (req, res) => {
+router.post('/send-money', async (req, res) => {
+  const { accountNumber, recipientAccountNumber, amount } = req.body;
+
   try {
-    const users = await User.findAll();
-    res.status(200).json(users);
+    const sender = await User.findOne({ where: { accountNumber } });
+    const recipient = await User.findOne({ where: { accountNumber: recipientAccountNumber } });
+
+    if (!sender) return res.status(404).json({ error: 'Sender not found' });
+    if (!recipient) return res.status(404).json({ error: 'Recipient not found' });
+
+    if (sender.balance < amount) return res.status(400).json({ error: 'Insufficient funds' });
+
+    sender.balance = parseFloat(sender.balance) - parseFloat(amount);
+    recipient.balance = parseFloat(recipient.balance) + parseFloat(amount);
+
+    await sender.save();
+    await recipient.save();
+
+    res.status(200).json({ message: 'Money sent successfully', newBalance: sender.balance.toFixed(2) });
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching users' });
+    console.error('Error sending money:', error);
+    res.status(500).json({ error: 'Error sending money', details: error.message });
+  }
+});
+
+/*
+ * Pay Bills route
+ */
+router.post('/pay-bills', async (req, res) => {
+  const { accountNumber, amount } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { accountNumber } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (user.balance < amount) return res.status(400).json({ error: 'Insufficient funds' });
+
+    user.balance = parseFloat(user.balance) - parseFloat(amount);
+    await user.save();
+
+    res.status(200).json({ message: 'Bills paid successfully', newBalance: user.balance.toFixed(2) });
+  } catch (error) {
+    console.error('Error paying bills:', error);
+    res.status(500).json({ error: 'Error paying bills', details: error.message });
   }
 });
 

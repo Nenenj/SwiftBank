@@ -16,8 +16,8 @@
   </nav>
 
   <div class="dashboard-container">
-    <h1>Welcome, <span id="username"></span></h1>
-    <h2>Your Balance: ₦<span id="balance"></span></h2>
+    <h1>Welcome, <span id="username">Guest</span></h1>
+    <p>Your Balance: ₦<span id="balance">₦0.00</span></p>
 
     <div class="actions">
       <button onclick="location.href='/deposit'">Deposit</button>
@@ -31,10 +31,26 @@
     document.addEventListener('DOMContentLoaded', () => {
       const username = localStorage.getItem('username');
       const balance = localStorage.getItem('balance');
-
-      document.getElementById('username').innerText = username;
-      document.getElementById('balance').innerText = balance;
+      
+      // Check if username and balance exist in localStorage
+         if(username && balance !== null) {
+	   document.getElementById('username').innerText = username;
+		 document.getElementById('balance').innerText = `₦${parseFloat(balance).toFixed(2)}`;
+	     } else {
+	       document.getElementById('username').innerText = 'Guest';
+		document.getElementById('balance').innerText = '₦0.00';
+	     }
     });
+
+// Logout functionality
+    document.getElementById('logoutButton').addEventListener('click', () => {
+	          // Clear user data from localStorage
+	          localStorage.removeItem('username');
+	          localStorage.removeItem('balance');
+	          localStorage.removeItem('token'); // If you're using a token
+
+	          // Redirect to the login page
+	          window.location.href = '/login';
   </script>
 </body>
 </html>
