@@ -45,8 +45,8 @@ router.post('/register', async (req, res) => {
  * Login route
  */
 router.post('/login', async (req, res) => {
-  console.log('Login request body:', req.body);
   const { email, password } = req.body;
+  console.log('Login request:', { email, password});
   try {
     /* Find the user by email */
     const user = await User.findOne({ where: { email } });
@@ -64,7 +64,12 @@ router.post('/login', async (req, res) => {
     );
 
     /* Send a success response with the token */
-    res.status(200).json({ message: 'Login successful', token });
+    res.status(200).json({ 
+	message: 'Login successful', 
+	token,
+        username: user.username,
+        balance: user.balance.toFixed(2)
+    });
   } catch (error) {
     /* Log the error to the terminal for debugging */
     console.error('Error logging in:', error);

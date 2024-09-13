@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+CTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,32 +7,72 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-	<!-- Navbar-->
+    <!-- Navbar-->
     <nav class="navbar">
         <div class="logo">SWIFTBANK</div>
+
+        <div class="nav-links">
+            <a href="/login">Login</a>
+            <a href="/account-opening">Account Opening</a>
+            <a href="/transactions">Transactions</a>
+            <a href="/">Dashboard</a>
+        </div>
+    </nav>
     
-    <div class="nav-links">
-                <a href="/login">Login</a>
-                <a href="/account-opening">Account Opening</a>
-                <a href="/transactions">Transactions</a>
-		<a href="/">Dashboard</a>
-    </div>
-        </nav>
-        <main class="content page">
-            <h2>Register</h2>
-	    <form action="/api/register" method="POST">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+    <main class="content page">
+        <h2>Register</h2>
+        <form id="registerForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
 
-                <label for="email">Email</label>
-                <input type="text" id="email" name="email" required>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
 
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
 
-                <button type="submit">Register</button>
-            </form>
-        </main>
-    </div>
+            <button type="submit">Register</button>
+        </form>
+        <p id="message"></p> <!-- To show success/error message -->
+    </main>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting the traditional way
+
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Perform the fetch request to the backend
+            fetch('http://localhost:3000/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageElement = document.getElementById('message');
+                if (data.error) {
+                    messageElement.textContent = `Error: ${data.error}`;
+                    messageElement.style.color = 'red';
+                } else {
+                    messageElement.textContent = 'Registration successful!';
+                    messageElement.style.color = 'green';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('message').textContent = 'An error occurred. Please try again.';
+            });
+        });
+    </script>
 </body>
 </html>
+

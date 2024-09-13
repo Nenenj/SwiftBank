@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const port = 3000;
 const path = require('path');
@@ -7,7 +8,6 @@ const path = require('path');
 const sequelize = require('./config/database');  
 const User = require('./models/User');
 const Transaction = require('./models/Transaction');
-
 // Middleware to parse JSON data
 app.use(express.json());
 
@@ -20,6 +20,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Use the user routes
 const userRoutes = require('./routes/user');
 app.use('/api', userRoutes);
+
+app.use(cors());
 
 // Route - Serve HTML pages
 app.get('/', (req, res) => {

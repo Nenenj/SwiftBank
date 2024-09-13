@@ -1,40 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transactions - SwiftBank</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transactions - SwiftBank</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-	<!-- Navbar -->
-    <nav class="navbar">
-        <div class="logo">SWIFTBANK</div>
- 
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">SWIFTBANK</div>
     <div class="nav-links">
-        
-         
-                <a href="/register">Register</a>
-                <a href="/login">Login</a>
-                <a href="/account-opening">Account Opening</a>
-                <a href="/">Dashboard</a>
+      <a href="/register">Register</a>
+      <a href="/login">Login</a>
+      <a href="/account-opening">Account Opening</a>
+      <a href="/">Dashboard</a>
     </div>
-        </nav>
-        <main class="content page">
-            <h2>Transactions</h2>
-	    <form action="/api/transactions" method="POST">
-                <label for="account-number">Account Number</label>
-                <input type="text" id="account-number" name="account-number" required>
+  </nav>
 
-                <label for="amount">Amount</label>
-                <input type="number" id="amount" name="amount" required>
+  <main class="content page">
+    <h2>Transactions</h2>
 
-                <button type="submit">Deposit</button>
-                <button type="submit">Withdraw</button>
-                <button type="submit">Send Money</button>
-                <button type="submit">Pay Bills</button>
-            </form>
-        </main>
-    </div>
+    <!-- Transaction Form -->
+    <form id="transactionForm">
+      <label for="account-number">Account Number</label>
+      <input type="text" id="account-number" name="account-number" required>
+
+      <label for="amount">Amount</label>
+      <input type="number" id="amount" name="amount" required>
+
+      <button type="button" id="depositBtn">Deposit</button>
+      <button type="button" id="withdrawBtn">Withdraw</button>
+      <button type="button" id="sendMoneyBtn">Send Money</button>
+      <button type="button" id="payBillsBtn">Pay Bills</button>
+    </form>
+
+    <!-- Result -->
+    <p id="transactionResult"></p>
+  </main>
+
+  <!-- JavaScript to handle transactions -->
+  <script>
+    const accountNumber = document.getElementById('account-number');
+    const amount = document.getElementById('amount');
+    const result = document.getElementById('transactionResult');
+
+    async function handleTransaction(type) {
+      try {
+        const response = await fetch(`http://localhost:3000/api/${type}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            accountNumber: accountNumber.value,
+            amount: parseFloat(amount.value),
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          result.textContent = `${type} successful! New Balance: ${data.newBalance}`;
+        } else {
+          result.textContent = `Error: ${data.error || 'Transaction failed'}`;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        result.textContent = 'An error occurred while processing the transaction.';
+      }
+    }
+
+    document.getElementById('depositBtn').addEventListener('click', () => handleTransaction('deposit'));
+    document.getElementById('withdrawBtn').addEventListener('click', () => handleTransaction('withdraw'));
+    document.getElementById('sendMoneyBtn').addEventListener('click', () => handleTransaction('send-money'));
+    document.getElementById('payBillsBtn').addEventListener('click', () => handleTransaction('pay-bills'));
+  </script>
 </body>
 </html>

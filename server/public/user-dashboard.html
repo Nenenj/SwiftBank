@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard - SwiftBank</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">SWIFTBANK</div>
+    <div class="nav-links">
+      <a href="/logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="dashboard-container">
+    <h1>Welcome, <span id="username"></span></h1>
+    <h2>Your Balance: ₦<span id="balance"></span></h2>
+
+    <div class="actions">
+      <button onclick="location.href='/deposit'">Deposit</button>
+      <button onclick="location.href='/withdraw'">Withdraw</button>
+      <button onclick="location.href='/pay-bills'">Pay Bills</button>
+    </div>
+  </div>
+
+  <script>
+    // Load user data from localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const username = localStorage.getItem('username');
+      const balance = localStorage.getItem('balance');
+
+      document.getElementById('username').innerText = username;
+      document.getElementById('balance').innerText = balance;
+    });
+  </script>
+</body>
+</html>

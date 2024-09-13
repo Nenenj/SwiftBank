@@ -7,32 +7,80 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-	<!-- Navbar -->
-	<nav class="navbar">
-		<div class="logo">SWIFTBANK</div>
-		<div class="nav-links">
-			<a href="/register">Register</a>
-			<a href="/account-opening">Account Opening</a>
-			<a href="/transactions">Transactions</a>
-			<a href="/">Dashboard</a>
-		</div>
-	</nav>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">SWIFTBANK</div>
+    <div class="nav-links">
+      <a href="/register">Register</a>
+      <a href="/account-opening">Account Opening</a>
+      <a href="/transactions">Transactions</a>
+      <a href="/">Dashboard</a>
+    </div>
+  </nav>
+
   <div class="login-container">
     <div class="swiftbank-vertical">SwiftBank</div>
     <div class="login-box">
       <h2>Login</h2>
-      <form action="/api/login" method="POST">
+      <!-- Form for login -->
+      <form id="loginForm">
         <div class="input-group">
           <img src="images/username-icon.png" alt="User" class="icon"> <!-- User icon -->
-          <input type="text" placeholder="Username" required>
+          <input type="text" id="email" placeholder="Email" required>
         </div>
         <div class="input-group">
           <img src="images/password-icon.png" alt="Password" class="icon"> <!-- Password icon -->
-          <input type="password" placeholder="Password" required>
+          <input type="password" id="password" placeholder="Password" required>
         </div>
         <button type="submit">Login</button>
       </form>
+
+      <!-- Login result -->
+      <p id="loginResult"></p>
     </div>
   </div>
+
+  <!-- JavaScript to handle the login -->
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('http://localhost:3000/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          
+	  document.getElementById('loginResult').textContent = 'Login successful!';
+	  // Store token, username, and balance in localStorage
+	  localStorage.setItem('token', data.token);
+	  localStorage.setItem('username', data.username);
+	  localStorage.setItem('balance', data.balance);
+
+
+          // Redirect to transactions page or user dashboard
+          window.location.href = '/user-dashboard.html'; 
+        } else {
+          document.getElementById('loginResult').textContent = data.error || 'Login failed!';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('loginResult').textContent = 'An error occurred during login.';
+      }
+    });
+  </script>
 </body>
 </html>
