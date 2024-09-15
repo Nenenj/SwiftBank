@@ -39,8 +39,7 @@
       <p id="loginResult"></p>
     </div>
   </div>
-
-  <!-- JavaScript to handle the login -->
+<!-- JavaScript to handle the login -->
   <script>
     document.getElementById('loginForm').addEventListener('submit', async function(event) {
       event.preventDefault(); // Prevent default form submission
@@ -63,16 +62,16 @@
         const data = await response.json();
 
         if (response.ok) {
+          document.getElementById('loginResult').textContent = 'Login successful!';
           
-	  document.getElementById('loginResult').textContent = 'Login successful!';
-	  // Store token, username, and balance in localStorage
-	  localStorage.setItem('token', data.token);
-	  localStorage.setItem('username', data.username);
-	  localStorage.setItem('balance', data.balance);
-
-
-          // Redirect to transactions page or user dashboard
-          window.location.href = '/user-dashboard.html'; 
+          // Store token, username, and balance in localStorage
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('username', data.username);
+          localStorage.setItem('balance', data.balance);
+	  localStorage.setItem('accountNumber', data.accountNumber);
+          
+          // Redirect to the transactions page (user-dashboard.html)
+          window.location.href = '/user-dashboard.html';
         } else {
           document.getElementById('loginResult').textContent = data.error || 'Login failed!';
         }

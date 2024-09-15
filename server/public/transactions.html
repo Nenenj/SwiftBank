@@ -42,9 +42,16 @@
 
   <!-- JavaScript to handle transactions and logout -->
   <script>
+    const storedAccountNumber = localStorage.getItem('accountNumber');
     const accountNumber = document.getElementById('account-number');
     const amount = document.getElementById('amount');
     const result = document.getElementById('transactionResult');
+
+    if (storedAccountNumber) {
+      accountNumberField.value = storedAccountNumber;
+    } else {
+      result.textContent = 'Error: Account number not found. Please log in.;
+	}
 
     async function handleTransaction(type) {
       try {
@@ -54,8 +61,8 @@
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            accountNumber: accountNumber.value,
-            amount: parseFloat(amount.value),
+            accountNumber: storedAccountNumber,
+            amount: parseFloat(amountField.value),
           }),
         });
 
@@ -79,7 +86,10 @@
 
     // Logout functionality
     document.getElementById('logoutBtn').addEventListener('click', () => {
-      window.location.href = '/login';
+    // Clear localStorage on logout
+    localStorage.removeItem('accountNumber');
+    localStorage.removeItem('token');
+    window.location.href = '/login';
     });
   </script>
 </body>

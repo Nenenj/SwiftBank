@@ -5,6 +5,9 @@ const User = require('../models/User');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 
+//JWT Secret key
+const JWT_SECRET = process.env.JWT_SECRET;
+
 /*
  * Register route
  */
@@ -46,16 +49,67 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid password' });
 
+    //Generate JWT token
+    const token = jwt.sign({ userId: user.Id, email: user.email },
+    JWT_SECRET, {
+     expiresIn: '1h'
+  });
+
     res.status(200).json({
       message: 'Login successful',
       username: user.username,
-      balance: user.balance
+      balance: user.balance,
+      accountNumber: user.accountNumber,
+      token
     });
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ error: 'Error logging in' });
   }
 });
+/*
+ * Account Opening route
+ */
+router.post('/account-opening', async (req, res) => {
+  const { username, email, password } = req.body;
+
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) return res.status(400).json({ error: 'User already exists' });
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Generate unique account number
+    const accountNumber = uuidv4().split('-')[0];
+
+    // Create new user
+    const newUser = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+      accountNumber,
+      balance: 0.00,  // Set initial balance
+    });
+
+    // Generate JWT token
+    const token = jwt.sign({ userId: newUser.id, email: newUser.email }, JWT_SECRET, {
+      expiresIn: '1h',  // Token expires in 1 hour
+    });
+
+    // Respond with account number and token
+    res.status(201).json({
+      message: 'Account opened successfully',
+      accountNumber: newUser.accountNumber,
+      token
+    });
+  } catch (error) {
+    console.error('Error opening account:', error);
+    res.status(500).json({ error: 'Error opening account' });
+  }
+});
+
 
 /*
  * Deposit route
@@ -104,6 +158,9 @@ router.post('/withdraw', async (req, res) => {
  */
 router.post('/send-money', async (req, res) => {
   const { accountNumber, recipientAccountNumber, amount } = req.body;
+  console.log('Sender Account:', accountNumber);
+  console.log('Recipient Account:', recipientAccountNumber);
+  console.log('Amount:', amount);
 
   try {
     const sender = await User.findOne({ where: { accountNumber } });

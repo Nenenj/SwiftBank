@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Dashboard - SwiftBank</title>
+  <title>Transactions - SwiftBank</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,46 +11,88 @@
   <nav class="navbar">
     <div class="logo">SWIFTBANK</div>
     <div class="nav-links">
-      <a href="/logout">Logout</a>
+      <a href="/register">Register</a>
+      <a href="/login">Login</a>
+      <a href="/account-opening">Account Opening</a>
+      <a href="/">Dashboard</a>
+      <a href="#" id="logoutBtn">Logout</a>
     </div>
   </nav>
 
-  <div class="dashboard-container">
-    <h1>Welcome, <span id="username">Guest</span></h1>
-    <p>Your Balance: ₦<span id="balance">₦0.00</span></p>
+  <main class="content page">
+    <h2 id="welcomeMessage">Welcome, </h2>
+    <h3>Your current balance: ₦<span id="userBalance"></span></h3>
 
-    <div class="actions">
-      <button onclick="location.href='/deposit'">Deposit</button>
-      <button onclick="location.href='/withdraw'">Withdraw</button>
-      <button onclick="location.href='/pay-bills'">Pay Bills</button>
-    </div>
-  </div>
+    <!-- Transaction Form -->
+    <form id="transactionForm">
+      <label for="account-number">Account Number</label>
+      <input type="text" id="account-number" name="account-number" required>
 
+      <label for="amount">Amount</label>
+      <input type="number" id="amount" name="amount" required>
+
+      <button type="button" id="depositBtn">Deposit</button>
+      <button type="button" id="withdrawBtn">Withdraw</button>
+      <button type="button" id="sendMoneyBtn">Send Money</button>
+      <button type="button" id="payBillsBtn">Pay Bills</button>
+    </form>
+
+    <!-- Result -->
+    <p id="transactionResult"></p>
+  </main>
+
+  <!-- JavaScript to handle transactions and logout -->
   <script>
-    // Load user data from localStorage
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
       const username = localStorage.getItem('username');
       const balance = localStorage.getItem('balance');
       
-      // Check if username and balance exist in localStorage
-         if(username && balance !== null) {
-	   document.getElementById('username').innerText = username;
-		 document.getElementById('balance').innerText = `₦${parseFloat(balance).toFixed(2)}`;
-	     } else {
-	       document.getElementById('username').innerText = 'Guest';
-		document.getElementById('balance').innerText = '₦0.00';
-	     }
+      document.getElementById('welcomeMessage').textContent = `Welcome, ${username}`;
+      document.getElementById('userBalance').textContent = parseFloat(balance).toFixed(2);
+
+      const accountNumber = document.getElementById('account-number');
+      const amount = document.getElementById('amount');
+      const result = document.getElementById('transactionResult');
+
+      async function handleTransaction(type) {
+        try {
+          const response = await fetch(`http://localhost:3000/api/${type}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              accountNumber: accountNumber.value,
+              amount: parseFloat(amount.value),
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            result.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} successful! New Balance: ₦${parseFloat(data.newBalance).toFixed(2)}`;
+            localStorage.setItem('balance', data.newBalance); // Update balance in localStorage
+            document.getElementById('userBalance').textContent = parseFloat(data.newBalance).toFixed(2); // Update displayed balance
+          } else {
+            result.textContent = `Error: ${data.error || 'Transaction failed'}`;
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          result.textContent = 'An error occurred while processing the transaction.';
+        }
+      }
+
+      document.getElementById('depositBtn').addEventListener('click', () => handleTransaction('deposit'));
+      document.getElementById('withdrawBtn').addEventListener('click', () => handleTransaction('withdraw'));
+      document.getElementById('sendMoneyBtn').addEventListener('click', () => handleTransaction('send-money'));
+      document.getElementById('payBillsBtn').addEventListener('click', () => handleTransaction('pay-bills'));
+
+      // Logout functionality
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.clear(); // Clear localStorage on logout
+        window.location.href = '/login.html';
+      });
     });
-
-// Logout functionality
-    document.getElementById('logoutButton').addEventListener('click', () => {
-	          // Clear user data from localStorage
-	          localStorage.removeItem('username');
-	          localStorage.removeItem('balance');
-	          localStorage.removeItem('token'); // If you're using a token
-
-	          // Redirect to the login page
-	          window.location.href = '/login';
   </script>
 </body>
 </html>

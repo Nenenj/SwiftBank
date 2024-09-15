@@ -103,6 +103,17 @@ form input {
     border-radius: 4px;
 }
 
+/* Styling for the response message */
+#responseMessage {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    word-wrap: break-word; /* Ensure long text wraps */
+    max-width: 600px; /* Set max width to control message display */
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     /* Navbar responsiveness */
@@ -144,7 +155,12 @@ form input {
         font-size: 14px;
         padding: 8px;
     }
-}
+
+    /* Adjust response message width */
+    #responseMessage {
+        max-width: 90%; /* Allow the response message to take up more space on smaller screens */
+    }
+
 
 @media (max-width: 480px) {
     /* Navbar title smaller for very small screens */
