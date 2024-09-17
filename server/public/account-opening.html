@@ -21,14 +21,26 @@
     <main class="content page">
         <h2>Account Opening</h2>
         <form id="accountOpeningForm">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
+            <label for="firstName">Name</label>
+            <input type="text" id="firstName" name="firstName" required>
 
-            <label for="email">Email</label>
-            <input type="text" id="email" name="email" required>
+            <label for="otherName">Other Name</label>
+            <input type="text" id="otherName" name="otherName">
 
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+            <label for="surname">Surname</label>
+            <input type="text" id="surname" name="surname" required>
+
+            <label for="dob">Date of Birth</label>
+            <input type="date" id="dob" name="dob" required>
+
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address" required>
+
+            <label for="phoneNumber">Phone Number</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" required>
+
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required>
 
             <button type="button" onclick="openAccount()">Open Account</button>
         </form>
@@ -37,25 +49,43 @@
 
     <script>
         async function openAccount() {
-            const username = document.getElementById('username').value;
+            const firstName = document.getElementById('firstName').value;
+            const otherName = document.getElementById('otherName').value;
+            const surname = document.getElementById('surname').value;
+            const dob = document.getElementById('dob').value;
+            const address = document.getElementById('address').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
             const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
 
-            const response = await fetch('/api/account-opening', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, email, password }),
-            });
+            try {
+                const response = await fetch('/api/account-opening', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        firstName,
+                        otherName,
+                        surname,
+                        dob,
+                        address,
+                        phoneNumber,
+                        email
+                    }),
+                });
 
-            const data = await response.json();
-            const responseMessage = document.getElementById('responseMessage');
+                const data = await response.json();
+                const responseMessage = document.getElementById('responseMessage');
 
-            if (response.ok) {
-                responseMessage.textContent = `Account opened successfully! Your account number: ${data.accountNumber}. Token: ${data.token}`;
-            } else {
-                responseMessage.textContent = `Error: ${data.error || 'Account opening failed'}`;
+                if (response.ok) {
+                    responseMessage.textContent = 'Account opened successfully!';
+                } else {
+                    responseMessage.textContent = `Error: ${data.error || 'Account opening failed'}`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                const responseMessage = document.getElementById('responseMessage');
+                responseMessage.textContent = 'An error occurred while opening the account.';
             }
         }
     </script>

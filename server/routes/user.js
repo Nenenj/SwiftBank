@@ -71,8 +71,7 @@ router.post('/login', async (req, res) => {
  * Account Opening route
  */
 router.post('/account-opening', async (req, res) => {
-  const { username, email, password } = req.body;
-
+  const { firstName, otherName, surname, dob, address, phoneNumber, email, password } = req.body;
   try {
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
@@ -86,7 +85,12 @@ router.post('/account-opening', async (req, res) => {
 
     // Create new user
     const newUser = await User.create({
-      username,
+      firstName,
+      otherName,
+      surname,
+      dob,
+      address,
+      phoneNumber,
       email,
       password: hashedPassword,
       accountNumber,
@@ -100,13 +104,13 @@ router.post('/account-opening', async (req, res) => {
 
     // Respond with account number and token
     res.status(201).json({
-      message: 'Account opened successfully',
+      message: 'Account created successfully',
       accountNumber: newUser.accountNumber,
-      token
     });
   } catch (error) {
-    console.error('Error opening account:', error);
-    res.status(500).json({ error: 'Error opening account' });
+    console.error('Error creating account:', error);
+    res.status(500).json({ error: 'Error opening account', details:
+    error.message});
   }
 });
 
