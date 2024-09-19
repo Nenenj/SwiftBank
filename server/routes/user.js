@@ -1,4 +1,5 @@
 const express = require('express');
+const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -71,20 +72,22 @@ router.post('/login', async (req, res) => {
  * Account Opening route
  */
 router.post('/account-opening', async (req, res) => {
-  const { firstName, otherName, surname, dob, address, phoneNumber, email, password } = req.body;
+  const { username, firstName, otherName, surname, dob, address, phoneNumber, email, password } = req.body;
   try {
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) return res.status(400).json({ error: 'User already exists' });
-
+    
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+   
     // Generate unique account number
     const accountNumber = uuidv4().split('-')[0];
 
     // Create new user
     const newUser = await User.create({
+      username,
       firstName,
       otherName,
       surname,
@@ -97,20 +100,14 @@ router.post('/account-opening', async (req, res) => {
       balance: 0.00,  // Set initial balance
     });
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: newUser.id, email: newUser.email }, JWT_SECRET, {
-      expiresIn: '1h',  // Token expires in 1 hour
-    });
 
     // Respond with account number and token
     res.status(201).json({
       message: 'Account created successfully',
-      accountNumber: newUser.accountNumber,
-    });
+    accountNumber});
   } catch (error) {
     console.error('Error creating account:', error);
-    res.status(500).json({ error: 'Error opening account', details:
-    error.message});
+    res.status(500).json({ error: 'Error opening account'});
   }
 });
 
@@ -167,22 +164,39 @@ router.post('/send-money', async (req, res) => {
   console.log('Amount:', amount);
 
   try {
-    const sender = await User.findOne({ where: { accountNumber } });
-    const recipient = await User.findOne({ where: { accountNumber: recipientAccountNumber } });
+    if (!accountNumber || !recipientAccountNumber || !amount || isNaN(amount)) {
+      return res.status(400).json({ error: 'Invalid input data. Please check account numbers and amount.' });
+    }
 
-    if (!sender) return res.status(404).json({ error: 'Sender not found' });
-    if (!recipient) return res.status(404).json({ error: 'Recipient not found' });
+    const transaction = await sequelize.transaction(async (t) => {
+      const sender = await User.findOne({ where: { accountNumber }, transaction: t });
+      const recipient = await User.findOne({ where: { accountNumber: recipientAccountNumber }, transaction: t });
 
-    if (sender.balance < amount) return res.status(400).json({ error: 'Insufficient funds' });
+      if (!sender) {
+        throw new Error('Sender not found');
+      }
+      if (!recipient) {
+        throw new Error('Recipient not found');
+      }
 
-    sender.balance = parseFloat(sender.balance) - parseFloat(amount);
-    recipient.balance = parseFloat(recipient.balance) + parseFloat(amount);
+      if (sender.balance < amount) {
+        throw new Error('Insufficient funds');
+      }
 
-    await sender.save();
-    await recipient.save();
+      sender.balance = parseFloat(sender.balance) - parseFloat(amount);
+      recipient.balance = parseFloat(recipient.balance) + parseFloat(amount);
 
-    res.status(200).json({ message: 'Money sent successfully', newBalance: sender.balance.toFixed(2) });
+      await sender.save({ transaction: t });
+      await recipient.save({ transaction: t });
+
+      return { sender, recipient, amount };
+    });
+
+    res.status(200).json({ message: 'Money sent successfully', newBalance: transaction.sender.balance.toFixed(2) });
   } catch (error) {
+    await sequelize.transaction(async (t) => {
+      await t.rollback();
+    });
     console.error('Error sending money:', error);
     res.status(500).json({ error: 'Error sending money', details: error.message });
   }

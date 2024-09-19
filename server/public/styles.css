@@ -78,6 +78,13 @@ button:hover {
     margin: 20px auto; /* Center the container */
 }
 
+/* Form styling */
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
 /* Input group styling */
 .input-group {
     margin-bottom: 15px;

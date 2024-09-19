@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transactions - SwiftBank</title>
+  <title>User Dashboard - SwiftBank</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -31,6 +31,23 @@
       <label for="amount">Amount</label>
       <input type="number" id="amount" name="amount" required>
 
+      <!-- For Send Money: Recipient's Account -->
+      <div id="recipientDiv" style="display: none;">
+        <label for="recipient-account-number">Recipient's Account Number</label>
+        <input type="text" id="recipient-account-number" name="recipient-account-number">
+      </div>
+
+      <!-- For Pay Bills: Select Bill Type -->
+      <div id="billsDiv" style="display: none;">
+        <label for="bill-type">Select Bill Type</label>
+        <select id="bill-type">
+          <option value="airtime">Airtime</option>
+          <option value="electricity">Electricity</option>
+          <option value="water">Water</option>
+          <option value="tv">TV</option>
+        </select>
+      </div>
+
       <button type="button" id="depositBtn">Deposit</button>
       <button type="button" id="withdrawBtn">Withdraw</button>
       <button type="button" id="sendMoneyBtn">Send Money</button>
@@ -52,25 +69,59 @@
 
       const accountNumber = document.getElementById('account-number');
       const amount = document.getElementById('amount');
+      const recipientAccount = document.getElementById('recipient-account-number');
+      const billType = document.getElementById('bill-type');
       const result = document.getElementById('transactionResult');
+
+      function toggleTransactionFields(type) {
+        // Show/hide recipient field or bill type field
+        if (type === 'send-money') {
+          document.getElementById('recipientDiv').style.display = 'block';
+          document.getElementById('billsDiv').style.display = 'none';
+        } else if (type === 'pay-bills') {
+          document.getElementById('recipientDiv').style.display = 'none';
+          document.getElementById('billsDiv').style.display = 'block';
+        } else {
+          document.getElementById('recipientDiv').style.display = 'none';
+          document.getElementById('billsDiv').style.display = 'none';
+        }
+      }
 
       async function handleTransaction(type) {
         try {
+          const transactionData = {
+            accountNumber: accountNumber.value,
+            amount: parseFloat(amount.value),
+          };
+
+          // Handle Send Money transaction
+          if (type === 'send-money') {
+            const recipientAccountNumber = recipientAccount.value;
+            if (!recipientAccountNumber) {
+              result.textContent = 'Recipient account number is required for sending money!';
+              return;
+            }
+            transactionData.recipientAccountNumber = recipientAccountNumber;
+          }
+
+          // Handle Pay Bills transaction
+          if (type === 'pay-bills') {
+            const selectedBillType = billType.value;
+            transactionData.billType = selectedBillType;
+          }
+
           const response = await fetch(`http://localhost:3000/api/${type}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              accountNumber: accountNumber.value,
-              amount: parseFloat(amount.value),
-            }),
+            body: JSON.stringify(transactionData),
           });
 
           const data = await response.json();
 
           if (response.ok) {
-            result.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} successful! New Balance: ₦${parseFloat(data.newBalance).toFixed(2)}`;
+            result.textContent = `${type.replace('-', ' ')} successful! New Balance: ₦${parseFloat(data.newBalance).toFixed(2)}`;
             localStorage.setItem('balance', data.newBalance); // Update balance in localStorage
             document.getElementById('userBalance').textContent = parseFloat(data.newBalance).toFixed(2); // Update displayed balance
           } else {
@@ -82,10 +133,19 @@
         }
       }
 
+      // Event listeners
       document.getElementById('depositBtn').addEventListener('click', () => handleTransaction('deposit'));
       document.getElementById('withdrawBtn').addEventListener('click', () => handleTransaction('withdraw'));
-      document.getElementById('sendMoneyBtn').addEventListener('click', () => handleTransaction('send-money'));
-      document.getElementById('payBillsBtn').addEventListener('click', () => handleTransaction('pay-bills'));
+
+      document.getElementById('sendMoneyBtn').addEventListener('click', () => {
+        toggleTransactionFields('send-money');
+        handleTransaction('send-money');
+      });
+
+      document.getElementById('payBillsBtn').addEventListener('click', () => {
+        toggleTransactionFields('pay-bills');
+        handleTransaction('pay-bills');
+      });
 
       // Logout functionality
       document.getElementById('logoutBtn').addEventListener('click', () => {
