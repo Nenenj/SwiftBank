@@ -66,7 +66,7 @@ To run this project locally, you'll need:
 ## Installation:
 
 * Clone the repository:
-git clone https://github.com/your-username/SwiftBank.git
+git clone https://github.com/Nenenj/SwiftBank.git
 
 * Navigate to the project folder:
 cd SwiftBank
