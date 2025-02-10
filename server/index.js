@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -5,7 +6,7 @@ const port = process.env.PORT || 3000;
 const path = require('path');
 
 // Import Sequelize and Models
-const sequelize = require('./config/database');  
+const sequelize = require('./config/database');
 const User = require('./models/User');
 const Transaction = require('./models/Transaction');
 // Middleware to parse JSON data
@@ -29,19 +30,19 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'register.html'));
+  res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 app.get('/account-opening', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'account-opening.html'));
+  res.sendFile(path.join(__dirname, 'public', 'account-opening.html'));
 });
 
 app.get('/transactions', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'transactions.html'));
+  res.sendFile(path.join(__dirname, 'public', 'transactions.html'));
 });
 
 

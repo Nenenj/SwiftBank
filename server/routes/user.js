@@ -52,9 +52,9 @@ router.post('/login', async (req, res) => {
 
     //Generate JWT token
     const token = jwt.sign({ userId: user.Id, email: user.email },
-    JWT_SECRET, {
-     expiresIn: '1h'
-  });
+      JWT_SECRET, {
+      expiresIn: '1h'
+    });
 
     res.status(200).json({
       message: 'Login successful',
@@ -77,11 +77,11 @@ router.post('/account-opening', async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) return res.status(400).json({ error: 'User already exists' });
-    
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-   
+
     // Generate unique account number
     const accountNumber = uuidv4().split('-')[0];
 
@@ -104,10 +104,11 @@ router.post('/account-opening', async (req, res) => {
     // Respond with account number and token
     res.status(201).json({
       message: 'Account created successfully',
-    accountNumber});
+      accountNumber
+    });
   } catch (error) {
     console.error('Error creating account:', error);
-    res.status(500).json({ error: 'Error opening account'});
+    res.status(500).json({ error: 'Error opening account' });
   }
 });
 
