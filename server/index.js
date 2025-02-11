@@ -1,14 +1,19 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+
 const app = express();
 const port = process.env.PORT || 3000;
-const path = require('path');
+
 
 // Import Sequelize and Models
 const sequelize = require('./config/database');
 const User = require('./models/User');
 const Transaction = require('./models/Transaction');
+
+app.use(cors());
+
 // Middleware to parse JSON data
 app.use(express.json());
 
@@ -22,7 +27,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 const userRoutes = require('./routes/user');
 app.use('/api', userRoutes);
 
-app.use(cors());
+// DB Connection
+sequelize.authenticate()
+  .then(() => {
+    console.log('Database connected successfully. ');
+
+    // Sync all models
+    return sequelize.sync();
+  })
+  .then(() => {
+    console.log('Database & tables synchronized! ');
+
+    // Start the server
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Database connection error:', err);
+  });
+
 
 // Route - Serve HTML pages
 app.get('/', (req, res) => {
@@ -44,18 +68,3 @@ app.get('/account-opening', (req, res) => {
 app.get('/transactions', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'transactions.html'));
 });
-
-
-// Sync all models and start the server
-sequelize.sync()
-  .then(() => {
-    console.log('Database & tables synchronized!');
-
-    // Start the server after DB sync
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    });
-  })
-  .catch((err) => {
-    console.error('Error synchronizing database tables:', err);
-  });
